@@ -1,0 +1,141 @@
+<html>
+<head>
+    <title>Weather Information</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: lightblue;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            width: 350px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #333;
+            font-size: 26px;
+            margin-bottom: 25px;
+        }
+
+        hr {
+            border: none;
+            height: 2px;
+            background: lightblue;
+            margin-bottom: 25px;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #ccc;
+            outline: none;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        input:focus {
+            border-color: #2196f3;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            background: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 17px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #0b70c9;
+        }
+
+        #result {
+            margin-top: 25px;
+            padding: 15px;
+            background: lightblue;
+            color: #333;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Weather Information</h1>
+
+        <hr>
+
+        <input type="text" id="city"
+        placeholder="Enter city name">
+
+        <button onclick="GetData()">Get Data</button>
+
+        <div id="result"></div>
+
+    </div>
+
+    <script>
+        function GetData()
+        {
+            let place = document.getElementById("city").value;
+
+            fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(place)}&count=1`)
+            .then(response => response.json())
+            .then(data => {
+
+                if (!data.results || data.results.length === 0) {
+                    document.getElementById("result").innerHTML =
+                    "City not found!";
+                    return;
+                }
+
+                let longitude = data.results[0].longitude;
+                let latitude = data.results[0].latitude;
+
+                weather_details(longitude, latitude);
+            })
+            .catch(error => console.log(error));
+        }
+
+        function weather_details(lo, la)
+        {
+            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&current=temperature_2m`)
+            .then(response => response.json())
+            .then(data => {
+
+                document.getElementById("result").innerHTML =
+                "Temperature: " +
+                data.current.temperature_2m + " °C";
+
+            })
+            .catch(error => console.log(error));
+        }
+    </script>
+
+</body>
+</html>
